@@ -28,5 +28,16 @@
         "typescript": "^5.9.3",
         "vite": "^7.3.0",
         "vitest": "^4.0.16"
-    }
+    },
+    "directories": {
+        "test": "tests"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/vixen-tech/lynguist-js.git"
+    },
+    "bugs": {
+        "url": "https://github.com/vixen-tech/lynguist-js/issues"
+    },
+    "homepage": "https://github.com/vixen-tech/lynguist-js#readme"
 }
