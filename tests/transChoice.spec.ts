@@ -10,6 +10,7 @@ beforeEach(() => {
             capitalizedUser: 'One :Name|:count :Name',
             uppercaseType: 'Single :TYPE|:count :TYPE',
             doubleCount: ':count item (:count total)|:count items (:count total)',
+            empty: '',
         },
     })
 })
@@ -22,6 +23,7 @@ it('returns the correct string based on the count', () => {
 
 it('returns the key if no translations was found', () => {
     expect(transChoice('inexistent', 0)).toBe('inexistent')
+    expect(transChoice('empty', 0)).toBe('empty')
 })
 
 it('returns translation with multiple placeholders including count', () => {

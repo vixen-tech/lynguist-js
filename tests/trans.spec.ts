@@ -14,6 +14,7 @@ beforeEach(() => {
             CaseSensitive: 'Case sensitive text',
             ucfirst: 'Hi :Name',
             uppercase: 'My :NAME!',
+            empty: null,
         },
     })
 })
@@ -24,6 +25,7 @@ it('returns the translated string', () => {
 
 it('returns the key itself if translation was not found', () => {
     expect(trans('incorrect-key')).toBe('incorrect-key')
+    expect(trans('empty')).toBe('empty')
 })
 
 it('returns translation with single placeholder substitution', () => {

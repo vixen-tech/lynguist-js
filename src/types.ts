@@ -1,13 +1,13 @@
-export interface LynguistTranslations extends Record<string, string> {}
+export interface LynguistTranslations extends Record<string, string | null> {}
 
 export interface LynguistOptions {
     locale: LynguistLocale
     translations: LynguistTranslations
 }
 
-export type ReplacePlaceholders = Record<string, number | string | null | undefined>
-
 export type LynguistTerm = keyof LynguistTranslations
+
+export type ReplacePlaceholders = Record<string, number | string | null | undefined>
 
 export type LynguistLocale =
     | 'af'
