@@ -5,11 +5,24 @@
     "type": "module",
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js"
+        },
+        "./vite": {
+            "types": "./dist/vite.d.ts",
+            "import": "./dist/vite.js"
+        },
+        "./virtual": {
+            "types": "./dist/virtual-lynguist.d.ts"
+        }
+    },
     "files": [
         "dist"
     ],
     "scripts": {
-        "build": "tsc -p tsconfig.json && tsc-alias",
+        "build": "tsc -p tsconfig.json && tsc-alias && cp src/virtual-lynguist.d.ts dist/",
         "clean": "rm -rf dist",
         "prepublishOnly": "pnpm clean && pnpm build",
         "test": "vitest run"
@@ -21,6 +34,14 @@
     ],
     "author": "Alex Torscho <contact@alextorscho.com> (https://alextorscho.com)",
     "license": "ISC",
+    "peerDependencies": {
+        "vite": ">=5.0.0"
+    },
+    "peerDependenciesMeta": {
+        "vite": {
+            "optional": true
+        }
+    },
     "devDependencies": {
         "@types/node": "^25.0.3",
         "prettier": "^3.7.4",

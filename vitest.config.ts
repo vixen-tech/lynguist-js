@@ -7,7 +7,8 @@ export default defineConfig({
     },
     resolve: {
         alias: {
-            '@': path.resolve(__dirname, './src')
+            '@': path.resolve(__dirname, './src'),
+            'virtual:lynguist-translations': path.resolve(__dirname, './tests/__mocks__/virtual-translations.ts'),
         },
     },
 })
