@@ -1,23 +1,86 @@
 import { LynguistLocale, ReplacePlaceholders } from '@/types'
 
+/**
+ * Replace placeholders in translation string with values.
+ * Supports Laravel-style case transformation:
+ * - :name → lowercase value
+ * - :Name → capitalized value
+ * - :NAME → uppercase value
+ */
 export function replacePlaceholders(text: string, replace: ReplacePlaceholders): string {
     let translation = text
 
-    for (const [placeholder, value] of Object.entries(replace)) {
-        if (value !== null && value !== undefined) {
-            let parameterValue = String(value)
+    for (const [key, value] of Object.entries(replace)) {
+        if (value === null || value === undefined) continue
+
+        const stringValue = String(value)
+        const lowerKey = key.toLowerCase()
+
+        // Match all case variants of the placeholder in the template
+        const regex = new RegExp(`:${lowerKey}`, 'gi')
+
+        translation = translation.replace(regex, match => {
+            const placeholder = match.slice(1) // Remove the ':'
 
             if (placeholder === placeholder.toUpperCase()) {
-                parameterValue = parameterValue.toUpperCase()
+                return stringValue.toUpperCase()
             } else if (placeholder[0] === placeholder[0].toUpperCase()) {
-                parameterValue = parameterValue.charAt(0).toUpperCase() + parameterValue.slice(1)
+                return stringValue.charAt(0).toUpperCase() + stringValue.slice(1).toLowerCase()
+            } else {
+                return stringValue
             }
-
-            translation = translation.replace(`:${placeholder}`, parameterValue)
-        }
+        })
     }
 
     return translation
+}
+
+/**
+ * Parse interval notation and return the matching translation part.
+ * Supports: {0}, {1}, [1,19], [20,*]
+ */
+export function parseIntervalNotation(translation: string, count: number): string | null {
+    const parts = translation.split('|')
+
+    for (const part of parts) {
+        const trimmed = part.trim()
+
+        // Match {n} - exact value
+        const exactMatch = trimmed.match(/^\{(\d+)\}\s*(.*)$/)
+
+        if (exactMatch) {
+            const exactValue = parseInt(exactMatch[1], 10)
+
+            if (count === exactValue) {
+                return exactMatch[2]
+            }
+
+            continue
+        }
+
+        // Match [n,m] or [n,*] - range
+        const rangeMatch = trimmed.match(/^\[(\d+),(\d+|\*)\]\s*(.*)$/)
+
+        if (rangeMatch) {
+            const min = parseInt(rangeMatch[1], 10)
+            const max = rangeMatch[2] === '*' ? Infinity : parseInt(rangeMatch[2], 10)
+
+            if (count >= min && count <= max) {
+                return rangeMatch[3]
+            }
+
+            continue
+        }
+    }
+
+    return null
+}
+
+/**
+ * Check if a translation string uses interval notation.
+ */
+export function hasIntervalNotation(translation: string): boolean {
+    return /(\{[\d]+\}|\[[\d]+,[\d*]+\])/.test(translation)
 }
 
 export function pluralIndex(count: number, locale: LynguistLocale): number {

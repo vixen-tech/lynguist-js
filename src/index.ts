@@ -1,5 +1,5 @@
 import { LynguistLocale, LynguistOptions, LynguistTerm, ReplacePlaceholders } from '@/types'
-import { pluralIndex, replacePlaceholders } from '@/utils'
+import { hasIntervalNotation, parseIntervalNotation, pluralIndex, replacePlaceholders } from '@/utils'
 // @ts-ignore - Virtual module provided by Vite plugin
 import translations from 'virtual:lynguist-translations'
 
@@ -107,11 +107,26 @@ export function trans(key: LynguistTerm, replace?: ReplacePlaceholders): string 
 export function transChoice(key: LynguistTerm, count: number, replace?: ReplacePlaceholders): string {
     if (!(key in config.translations) || !config.translations[key]) return key as string
 
-    const parts = config.translations[key].split('|')
-    let index = pluralIndex(count, config.locale as LynguistLocale)
+    const translationString = config.translations[key]
+    let translation: string
 
-    let translation = parts[index]
-    translation = translation.replaceAll(/:count/g, count.toString())
+    // Check for interval notation first ({0}, {1}, [1,19], [20,*])
+    if (hasIntervalNotation(translationString)) {
+        const intervalResult = parseIntervalNotation(translationString, count)
+
+        if (intervalResult !== null) {
+            translation = intervalResult
+        } else {
+            translation = translationString.split('|')[0].replace(/^[{[].*?[}\]]\s*/, '')
+        }
+    } else {
+        const parts = translationString.split('|')
+        const index = pluralIndex(count, config.locale as LynguistLocale)
+
+        translation = parts[index] ?? parts[parts.length - 1]
+    }
+
+    translation = translation.replace(/:count/gi, count.toString())
 
     if (replace) {
         translation = replacePlaceholders(translation, replace)

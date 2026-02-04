@@ -68,3 +68,53 @@ it('replaces multiple occurrences of :count in translation', () => {
     expect(transChoice('doubleCount', 1)).toBe('1 item (1 total)')
     expect(transChoice('doubleCount', 7)).toBe('7 items (7 total)')
 })
+
+describe('Interval Notation', () => {
+    beforeEach(() => {
+        Lynguist({
+            locale: 'en',
+            translations: {
+                exactZero: '{0} No items',
+                exactOne: '{1} One item',
+                range: '[1,10] Some items|[11,*] Many items',
+                mixed: '{0} None|{1} One|[2,4] A few|[5,*] Many',
+                withCount: '{0} No apples|{1} :count apple|[2,*] :count apples',
+                withPlaceholder: '{0} :Name has none|{1} :Name has one|[2,*] :Name has :count',
+            },
+        })
+    })
+
+    it('matches exact value with {n} notation', () => {
+        expect(transChoice('exactZero', 0)).toBe('No items')
+        expect(transChoice('exactOne', 1)).toBe('One item')
+    })
+
+    it('matches range with [n,m] notation', () => {
+        expect(transChoice('range', 1)).toBe('Some items')
+        expect(transChoice('range', 5)).toBe('Some items')
+        expect(transChoice('range', 10)).toBe('Some items')
+        expect(transChoice('range', 11)).toBe('Many items')
+        expect(transChoice('range', 100)).toBe('Many items')
+    })
+
+    it('matches mixed interval notation', () => {
+        expect(transChoice('mixed', 0)).toBe('None')
+        expect(transChoice('mixed', 1)).toBe('One')
+        expect(transChoice('mixed', 2)).toBe('A few')
+        expect(transChoice('mixed', 4)).toBe('A few')
+        expect(transChoice('mixed', 5)).toBe('Many')
+        expect(transChoice('mixed', 100)).toBe('Many')
+    })
+
+    it('replaces :count in interval notation', () => {
+        expect(transChoice('withCount', 0)).toBe('No apples')
+        expect(transChoice('withCount', 1)).toBe('1 apple')
+        expect(transChoice('withCount', 5)).toBe('5 apples')
+    })
+
+    it('replaces placeholders in interval notation', () => {
+        expect(transChoice('withPlaceholder', 0, { Name: 'john' })).toBe('John has none')
+        expect(transChoice('withPlaceholder', 1, { Name: 'jane' })).toBe('Jane has one')
+        expect(transChoice('withPlaceholder', 5, { Name: 'alex' })).toBe('Alex has 5')
+    })
+})
