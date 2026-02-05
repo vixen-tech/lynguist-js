@@ -47,8 +47,9 @@ export default defineConfig({
 
 **2. Create translation files:**
 
+File: `/lang/en.json`
+
 ```json
-// lang/en.json
 {
     "greeting": "Hello :name",
     "items": "One item|:count items",
