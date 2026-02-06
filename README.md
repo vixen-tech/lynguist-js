@@ -12,6 +12,7 @@ Inspired by [laravel-translator-js](https://github.com/sergix44/laravel-translat
 - **Runtime locale switching** - Dynamically change languages with event notifications
 - **Smart placeholders** - Laravel-style variable replacement with case transformation
 - **Advanced pluralization** - Pipe-separated and interval notation support
+- **Link parsing** - Convert `[text]` placeholders to HTML anchor tags
 - **Vite integration** - Virtual module plugin for loading JSON translation files (supports any framework)
 - **Type-safe** - Full TypeScript support with typed translation keys
 
@@ -254,6 +255,26 @@ const unsubscribe = onLocaleChange((newLocale, previousLocale) => {
 // Later: stop listening
 unsubscribe()
 ```
+
+### `linkify(text, urls)`
+
+Parse link placeholders in a string and replace with HTML anchor tags. Use `[text]` to mark link text.
+
+```typescript
+// Single link
+linkify('Click [here] to continue', 'https://example.com')
+// → 'Click <a href="https://example.com">here</a> to continue'
+
+// Multiple links (matched by index)
+linkify('[First] and [second] links', ['https://a.com', 'https://b.com'])
+// → '<a href="https://a.com">First</a> and <a href="https://b.com">second</a> links'
+
+// Escape brackets with backslash
+linkify('Use \\[brackets\\] literally', 'https://example.com')
+// → 'Use [brackets] literally'
+```
+
+Unmatched placeholders (more `[...]` than URLs) are left as-is.
 
 ## Vite Plugin Options
 

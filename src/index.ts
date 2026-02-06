@@ -50,7 +50,9 @@ export function onLocaleChange(callback: LocaleChangeCallback): () => void {
  */
 export function setLocale(locale: string): void {
     if (!config.allTranslations[locale]) {
-        console.warn(`[lynguist] Locale "${locale}" not found. Available: ${Object.keys(config.allTranslations).join(', ')}`)
+        console.warn(
+            `[lynguist] Locale "${locale}" not found. Available: ${Object.keys(config.allTranslations).join(', ')}`,
+        )
         return
     }
 
@@ -84,7 +86,11 @@ export function getTranslations(locale?: string): Record<string, string> {
 
 export function __(key: LynguistTerm, replace?: ReplacePlaceholders): string
 export function __(key: LynguistTerm, count: number, replace?: ReplacePlaceholders): string
-export function __(key: LynguistTerm, countOrReplace?: number | ReplacePlaceholders, replace?: ReplacePlaceholders): string {
+export function __(
+    key: LynguistTerm,
+    countOrReplace?: number | ReplacePlaceholders,
+    replace?: ReplacePlaceholders,
+): string {
     if (typeof countOrReplace === 'number') {
         return transChoice(key, countOrReplace, replace)
     }
@@ -133,4 +139,47 @@ export function transChoice(key: LynguistTerm, count: number, replace?: ReplaceP
     }
 
     return translation
+}
+
+/**
+ * Parse link placeholders in a string and replace with HTML anchor tags.
+ * Use [text] to mark link text, and escape with \\[ for literal brackets.
+ *
+ * @example
+ * linkify('Click [here] to continue', 'https://example.com')
+ * // Returns: 'Click <a href="https://example.com">here</a> to continue'
+ *
+ * @example
+ * linkify('[First] and [second] links', ['https://a.com', 'https://b.com'])
+ * // Returns: '<a href="https://a.com">First</a> and <a href="https://b.com">second</a> links'
+ *
+ * @example
+ * linkify('Use \\[brackets\\] literally', 'https://example.com')
+ * // Returns: 'Use [brackets] literally'
+ */
+export function linkify(text: string, urls: string | string[]): string {
+    const urlArray = Array.isArray(urls) ? urls : [urls]
+    let urlIndex = 0
+
+    // First, replace escaped brackets with temporary placeholders
+    const escapedOpen = '\x00ESCAPED_OPEN\x00'
+    const escapedClose = '\x00ESCAPED_CLOSE\x00'
+
+    let result = text.replace(/\\\[/g, escapedOpen).replace(/\\]/g, escapedClose)
+
+    // Replace [text] patterns with anchor tags
+    result = result.replace(/\[([^\]]+)]/g, (match, linkText) => {
+        if (urlIndex < urlArray.length) {
+            const url = urlArray[urlIndex++]
+            return `<a href="${url}">${linkText}</a>`
+        }
+
+        // No corresponding URL, leave as-is
+        return match
+    })
+
+    // Restore escaped brackets as literal brackets
+    result = result.replace(new RegExp(escapedOpen, 'g'), '[').replace(new RegExp(escapedClose, 'g'), ']')
+
+    return result
 }
