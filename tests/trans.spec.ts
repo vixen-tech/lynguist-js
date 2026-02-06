@@ -68,3 +68,14 @@ it('capitalizes the first letter based on placeholder name', () => {
 it('capitalizes all letter according to the placeholder name', () => {
     expect(__('uppercase', { NAME: 'eyes' })).toBe('My EYES!')
 })
+
+it('does not replace substring placeholders', () => {
+    Lynguist({
+        locale: 'en',
+        translations: {
+            'similar.placeholders': 'From :to to :total items',
+        },
+    })
+
+    expect(trans('similar.placeholders', { to: 'A', total: 'B' })).toBe('From A to B items')
+})

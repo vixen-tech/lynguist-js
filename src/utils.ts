@@ -16,8 +16,7 @@ export function replacePlaceholders(text: string, replace: ReplacePlaceholders):
         const stringValue = String(value)
         const lowerKey = key.toLowerCase()
 
-        // Match all case variants of the placeholder in the template
-        const regex = new RegExp(`:${lowerKey}`, 'gi')
+        const regex = new RegExp(`:${lowerKey}(?![a-zA-Z0-9_])`, 'gi')
 
         translation = translation.replace(regex, match => {
             const placeholder = match.slice(1) // Remove the ':'
