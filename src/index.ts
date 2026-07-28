@@ -35,6 +35,15 @@ export function Lynguist(options: LynguistOptions): void {
     config.translations = options.translations as Record<string, string>
 }
 
+export function syncFromInertia(pageProps: Record<string, unknown>): void {
+    const locale = pageProps.locale as LynguistLocale
+    const lynguist = pageProps.lynguist as Record<string, string>
+
+    if (locale && lynguist) {
+        Lynguist({ locale, translations: lynguist })
+    }
+}
+
 /**
  * Subscribe to locale changes.
  * @returns Unsubscribe function

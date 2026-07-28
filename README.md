@@ -96,19 +96,43 @@ __('welcome') // "Hello World"
 
 ## Inertia.js
 
-To reactively switch locale, you can create a wrapper component that assigns current locale to document's `lang` attribute:
+### Runtime sync (recommended)
+
+When using the [vixen-tech/laravel-lynguist](https://github.com/vixen-tech/laravel-lynguist) PHP package, translations are automatically shared as an Inertia prop on every response. Call `syncFromInertia` in your app entry point so the runtime translations (from the server's lang files) override the bundled ones — meaning new translations synced via Lynguist take effect on page refresh without a frontend rebuild.
 
 ```typescript
-const locale = usePage().props.locale
+// app.tsx
+import { syncFromInertia } from '@vixen-tech/lynguist'
+import { createInertiaApp, router } from '@inertiajs/react'
 
-if (typeof window !== 'undefined') {
-    document.documentElement.lang = locale
-}
+router.on('navigate', event => syncFromInertia(event.detail.page.props))
+
+createInertiaApp({
+    setup({ el, App, props }) {
+        syncFromInertia(props.initialPage.props)
+        // ...
+    }
+})
 ```
 
-Here's what it looks like in React:
+```tsx
+// ssr.tsx
+import { syncFromInertia } from '@vixen-tech/lynguist'
+import { createInertiaApp } from '@inertiajs/react'
 
-```typescript jsx
+createInertiaApp({
+    setup: ({ App, props }) => {
+        syncFromInertia(props.initialPage.props)
+        return <App {...props} />
+    }
+})
+```
+
+### Locale switching
+
+To reactively switch locale, create a wrapper component that assigns the current locale to the document's `lang` attribute:
+
+```tsx
 export function Wrapper({ children }: PropsWithChildren) {
     const locale = usePage<SharedData>().props.locale
 
@@ -242,6 +266,10 @@ Get translations for a specific or current locale.
 getTranslations()       // Current locale translations
 getTranslations('de')   // German translations
 ```
+
+### `syncFromInertia(pageProps)`
+
+Syncs translations from Inertia page props. See the [Inertia.js](#inertiajs) section for usage.
 
 ### `onLocaleChange(callback)`
 
